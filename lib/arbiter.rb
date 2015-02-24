@@ -25,7 +25,7 @@ module DTK
       end
 
       def run
-        return { :results => [], :errors => Log.execution_errrors } if @execution_list.empty?
+        return { :results => [], :errors => Log.execution_errors } if @execution_list.empty?
 
         # start positioning files
         @positioner.run()
@@ -34,7 +34,7 @@ module DTK
         @commander.run()
 
         # return results
-        { :results => @commander.results(), :errors => Log.execution_errrors }
+        { :results => @commander.results(), :errors => Log.execution_errors }
       end
 
     end

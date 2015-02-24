@@ -17,7 +17,7 @@ module DTK
         @error_msgs =[]
       end
 
-      def self.execution_errrors()
+      def self.execution_errors()
         self.instance.error_msgs
       end
 
