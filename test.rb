@@ -7,11 +7,10 @@ require 'cgi'
 
 @request_params = ActiveSupport::HashWithIndifferentAccess.new(
   {
-    :env_vars2 => { :HARIS => 'WORKS', :NESTO => 21 },
+    :env_vars => { :test_env => 'works', :test_env_second => 10 },
     :execution_list => [
       {
         :type    => 'syscall',
-        #:command => 'bash ~/test_script.sh 2>&1',
         :command => "script -qfc 'JAVA_HOME=\"/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75.x86_64\" HADOOP_HOME=\"/usr/lib/hadoop\" HADOOP_CONF_DIR=\"/etc/hadoop/conf/\" /usr/local/maven/bin/mvn verify -f /etc/puppet/modules/action_module/dtk/bigtop_tests/bigtop-tests/test-execution/smokes/hadoop/pom.xml'",
         :if      => 'echo works!'
       },
@@ -20,7 +19,7 @@ require 'cgi'
         :command => '1date',
         :unless      => 'echo "Does not work!"'
       }],
-    :positioning2 => [{
+    :positioning => [{
         :type => 'file',
         :source => {
           :type => 'git',
