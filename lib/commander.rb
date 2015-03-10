@@ -34,6 +34,13 @@ module DTK
                 Log.debug("Command '#{new_command_task}' spawned as callback")
                 # new task added we need to check again
                 all_finished = false
+              else
+                # this is for cases when there is no callback (so exit is not expected) and we have exit error
+                if command_task.exitstatus > 0
+                  # this is for clarity (all_finished should be true)
+                  all_finished = true
+                  break
+                end
               end
             else
               # we are not ready yet, some tasks need to finish
