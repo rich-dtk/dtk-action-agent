@@ -13,9 +13,9 @@ DTK action agent is system gem design to run system task asynchronously on host 
 As any gem we need to run:
 
 	gem build dtk-action-agent.gemspec
-	
+
 	gem install dtk-action-agent*.gem
-	
+
 ##### Example
 
 Example of instruction hash:
@@ -51,17 +51,17 @@ Example of instruction hash:
           		:type => 'in_payload',
           		:content => "Hello WORLD!"
         	},
-        	:target => 
+        	:target =>
         	{
           		:path => "/Users/haris/test-folder/site-stage-1-invocation-1.pp"
-        	}	
+        	}
       }]
 	}
 
-Has needs to encoded and sent as JSON.
+Hash needs to be encoded and sent as JSON.
 
 	transform_to_string = example.to_json
   	transform_to_string = CGI.escape(transform_to_string)
  	result = `dtk-action-agent '#{transform_to_string}'`
- 	
+
 Have fun!
