@@ -82,7 +82,7 @@ module DTK
       end
 
       def results
-        @command_tasks.collect do |command_task|
+        res = @command_tasks.collect do |command_task|
           next unless command_task.started?
           {
             :status      => command_task.exitstatus,
@@ -92,6 +92,8 @@ module DTK
             :child_task  => command_task.child_task
           }
         end
+
+        res.compact
       end
 
     private
