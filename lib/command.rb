@@ -81,6 +81,10 @@ module DTK
         self.process.err
       end
 
+      def started?
+        !!self.process
+      end
+
       def to_s
         "#{@command} (#{command_type})"
       end

@@ -16,7 +16,7 @@ require 'cgi'
       },
       {
         :type    => 'syscall',
-        :command => '1date',
+        :command => 'date',
         :unless      => 'echo "Does not work!"'
       }],
     :positioning => [{

@@ -5,11 +5,44 @@ module DTK
   module Agent
     class Commander
 
+      PARALLEL_EXECUTION = ENV['DTK_ACTION_AGENT_PARALLEL_EXEC'] || false
+
       def initialize(execution_list)
         @command_tasks  = execution_list.collect { |command| Command.new(command) }
       end
 
       def run
+        if PARALLEL_EXECUTION
+          parallel_run()
+        else
+          sequential_run()
+        end
+      end
+
+      def sequential_run
+        @command_tasks.each do |command_task|
+          command_task.start_task
+
+          loop do
+            if command_task.exited?
+              Log.debug("Command '#{command_task}' finished, with status #{command_task.exitstatus}")
+
+              # exit if there is an error
+              return nil if (command_task.exitstatus.to_i > 0)
+
+              # if there is a callback start it
+              spawn_callback_task(command_task) if command_task.callback_pending?
+
+              break
+            end
+
+            sleep(1)
+          end
+
+        end
+      end
+
+      def parallel_run
         @command_tasks.each do |command_task|
           command_task.start_task
         end
@@ -21,26 +54,15 @@ module DTK
           # we check status of all tasks
           # (Usually is not good practice to change array/map you are iterating but this seems as cleanest solutions)
           @command_tasks.each do |command_task|
-
             # is task finished
             if command_task.exited?
               Log.debug("Command '#{command_task}' finished, with status #{command_task.exitstatus}")
 
               # if there is a callback start it
               if command_task.callback_pending?
-                new_command_task = command_task.spawn_callback_task
-                new_command_task.start_task
-                @command_tasks << new_command_task
-                Log.debug("Command '#{new_command_task}' spawned as callback")
+                spawn_callback_task(command_task, true)
                 # new task added we need to check again
                 all_finished = false
-              else
-                # this is for cases when there is no callback (so exit is not expected) and we have exit error
-                if command_task.exitstatus > 0
-                  # this is for clarity (all_finished should be true)
-                  all_finished = true
-                  break
-                end
               end
             else
               # we are not ready yet, some tasks need to finish
@@ -52,9 +74,16 @@ module DTK
         end
       end
 
+      def spawn_callback_task(command_task, start_task = false)
+        new_command_task = command_task.spawn_callback_task
+        new_command_task.start_task if start_task
+        @command_tasks << new_command_task
+        Log.debug("Command '#{new_command_task}' spawned as callback")
+      end
+
       def results
         @command_tasks.collect do |command_task|
-          process = command_task.process
+          next unless command_task.started?
           {
             :status      => command_task.exitstatus,
             :stdout      => command_task.out,
