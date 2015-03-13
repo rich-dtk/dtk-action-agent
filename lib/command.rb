@@ -9,19 +9,24 @@ module DTK
       attr_accessor :command_type, :command, :if_success, :if_fail, :process, :child_task
 
       ##
-      # command    - string to be run on system, e.g. ifconfig
-      # type       - type of command e.g. syscall, ruby
-      # if         - callback to be run if exit status is  = 0
-      # unless     - callback to be run if exit status is != 0
-      # child_task - if it is spawned by another main task
+      # command         - string to be run on system, e.g. ifconfig
+      # type            - type of command e.g. syscall, ruby
+      # if              - callback to be run if exit status is  = 0
+      # unless          - callback to be run if exit status is != 0
+      # stdout_redirect - redirect all output to stdout
+      # child_task      - if it is spawned by another main task
       #
+
+      STDOUT_REDIRECT = ' 2>&1'
+
       def initialize(value_hash)
-        @command_type = value_hash['type']
-        @command      = value_hash['command']
-        @if_success   = value_hash['if']
-        @if_fail      = value_hash['unless']
-        @spawned      = false
-        @child_task   = value_hash['child_task'] || false
+        @command_type    = value_hash['type']
+        @command         = value_hash['command']
+        @redirect_stdout = !!value_hash['stdout_redirect']
+        @if_success      = value_hash['if']
+        @if_fail         = value_hash['unless']
+        @spawned         = false
+        @child_task      = value_hash['child_task'] || false
 
         if @if_success && @if_fail
           Log.warn "Unexpected case, both if/unless conditions have been set for command #{@command}(#{@command_type})"
@@ -33,7 +38,7 @@ module DTK
       #
       def start_task
         begin
-          @process = POSIX::Spawn::Child.new(@command)
+          @process = POSIX::Spawn::Child.new(formulate_command)
           Log.debug("Command started: '#{self.to_s}'")
         rescue Exception => e
           @error_message = e.message
@@ -86,7 +91,16 @@ module DTK
       end
 
       def to_s
-        "#{@command} (#{command_type})"
+        "#{formulate_command} (#{command_type})"
+      end
+
+    private
+
+      #
+      # Based on stdout-redirect flag
+      #
+      def formulate_command
+        @redirect_stdout ? "#{@command} #{STDOUT_REDIRECT}" : @command
       end
 
     end

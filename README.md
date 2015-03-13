@@ -24,9 +24,10 @@ Example of instruction hash:
 		:env_vars => { :test_env => 'works', :test_env_second => 10 },
     	:execution_list => [
         {
-        	:type    => 'syscall',
-        	:command => "date",
-        	:if      => 'echo works!'
+        	:type            => 'syscall',
+        	:command         => "date",
+        	:if              => 'echo works!',
+        	:redirect_stdout => true
       	},
       	{
         	:type    => 'syscall',

@@ -11,15 +11,15 @@ require 'cgi'
     :execution_list => [
       {
         :type    => 'syscall',
-        :command => "script -qfc 'JAVA_HOME=\"/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.75.x86_64\" HADOOP_HOME=\"/usr/lib/hadoop\" HADOOP_CONF_DIR=\"/etc/hadoop/conf/\" /usr/local/maven/bin/mvn verify -f /etc/puppet/modules/action_module/dtk/bigtop_tests/bigtop-tests/test-execution/smokes/hadoop/pom.xml'",
-        :if      => 'echo works!'
-      },
-      {
-        :type    => 'syscall',
-        :command => 'date',
-        :unless      => 'echo "Does not work!"'
+        :command => "bash /Users/haris/test.sh",
+        :stdout_redirect => true
       }],
-    :positioning => [{
+      # {
+      #   :type    => 'syscall',
+      #   :command => 'date',
+      #   :unless      => 'echo "Does not work!"'
+      # }],
+    :positioning2 => [{
         :type => 'file',
         :source => {
           :type => 'git',
