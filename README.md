@@ -27,7 +27,7 @@ Example of instruction hash:
         	:type            => 'syscall',
         	:command         => "date",
         	:if              => 'echo works!',
-        	:redirect_stdout => true
+        	:stdout_redirect => true
       	},
       	{
         	:type    => 'syscall',

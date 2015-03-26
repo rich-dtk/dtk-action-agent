@@ -22,7 +22,7 @@ module DTK
       def initialize(value_hash)
         @command_type    = value_hash['type']
         @command         = value_hash['command']
-        @redirect_stdout = !!value_hash['stdout_redirect']
+        @stdout_redirect = !!value_hash['stdout_redirect']
         @if_success      = value_hash['if']
         @if_fail         = value_hash['unless']
         @spawned         = false
@@ -100,7 +100,7 @@ module DTK
       # Based on stdout-redirect flag
       #
       def formulate_command
-        @redirect_stdout ? "#{@command} #{STDOUT_REDIRECT}" : @command
+        @stdout_redirect ? "#{@command} #{STDOUT_REDIRECT}" : @command
       end
 
     end
