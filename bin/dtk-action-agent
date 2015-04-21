@@ -5,7 +5,6 @@ require 'cgi'
 
 require File.expand_path('../../lib/logger', __FILE__)
 require File.expand_path('../../lib/arbiter', __FILE__)
-require File.expand_path('../../lib/positioner', __FILE__)
 require File.expand_path('../../lib/commander', __FILE__)
 
 unless ARGV[0]

@@ -54,6 +54,10 @@ module DTK
         !!command_to_run
       end
 
+      def is_positioning?
+        'file'.eql?(@command_type)
+      end
+
 
       ##
       # Creates Command object for callback, first check 'if' than 'unless'. There should be no both set so priority is given

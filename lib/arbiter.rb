@@ -20,15 +20,11 @@ module DTK
 
         # sets enviorment variables
         Commander.set_environment_variables(@received_message['env_vars'])
-        @positioner     = Positioner.new(@received_message['positioning'])
         @commander = Commander.new(@received_message['execution_list'])
       end
 
       def run
         return { :results => [], :errors => Log.execution_errors } if @execution_list.empty?
-
-        # start positioning files
-        @positioner.run()
 
         # start commander runnes
         @commander.run()

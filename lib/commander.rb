@@ -1,4 +1,5 @@
 require File.expand_path('../command', __FILE__)
+require File.expand_path('../position', __FILE__)
 
 
 module DTK
@@ -8,7 +9,13 @@ module DTK
       PARALLEL_EXECUTION = ENV['DTK_ACTION_AGENT_PARALLEL_EXEC'] || false
 
       def initialize(execution_list)
-        @command_tasks  = execution_list.collect { |command| Command.new(command) }
+        @command_tasks  = execution_list.collect do |command|
+          if (command['type'].eql?('file'))
+            Position.new(command)
+          else
+            Command.new(command)
+          end
+        end
       end
 
       def run

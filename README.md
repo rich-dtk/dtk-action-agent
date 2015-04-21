@@ -33,20 +33,19 @@ Example of instruction hash:
         	:type    => 'syscall',
         	:command => '1date',
         	:unless      => 'echo "Does not work!"'
-       }],
-    	:positioning => [
-    	{
+        },
+        {
         	:type => 'file',
         	:source => {
-            :type => 'git',
-            :url => "git@github.com:rich-reactor8/dtk-client.git",
-            :ref => "tenant1"
-        },
+            	:type => 'git',
+            	:url => "git@github.com:rich-reactor8/dtk-client.git",
+            	:ref => "tenant1"
+            },
         	:target => {
-            :path => "/Users/haris/foo-test"
-        },
-      },
-      {
+            	:path => "/Users/haris/foo-test"
+            },
+         },
+         {
         	:type => 'file',
         	:source => {
           		:type => 'in_payload',
@@ -56,7 +55,7 @@ Example of instruction hash:
         	{
           		:path => "/Users/haris/test-folder/site-stage-1-invocation-1.pp"
         	}
-      }]
+         }]
 	}
 
 Hash needs to be encoded and sent as JSON.

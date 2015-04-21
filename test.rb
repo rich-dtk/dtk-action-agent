@@ -5,7 +5,7 @@ require 'active_support/core_ext/hash'
 require 'cgi'
 
 
-@request_params = ActiveSupport::HashWithIndifferentAccess.new(
+@request_params_old = ActiveSupport::HashWithIndifferentAccess.new(
   {
     :env_vars => { :test_env => 'works', :test_env_second => 10 },
     :execution_list => [
@@ -42,6 +42,34 @@ require 'cgi'
       }]
   })
 
+@request_params = ActiveSupport::HashWithIndifferentAccess.new({
+  :env_vars => { :test_env => 'works', :test_env_second => 10 },
+  :execution_list => [
+    {
+        :type            => 'syscall',
+        :command         => "date",
+        :if              => 'echo works!',
+        :stdout_redirect => true
+    },
+    {
+        :type => 'file',
+        :source => {
+           :type => 'git',
+           :url => "git@github.com:rich-reactor8/dtk-client.git",
+           :ref => "tenant1"
+        },
+        :target => {
+          :path => "/Users/haris/foo-test"
+        },
+    },
+   {
+        :type    => 'syscall',
+        :command => '1date',
+        :unless      => 'echo "Does not work!"'
+   }]
+
+})
+
 def test_command_line
   transform_to_string = @request_params.to_json
   transform_to_string = CGI.escape(transform_to_string)
@@ -52,7 +80,6 @@ end
 def test_inline
   require File.expand_path('../lib/logger', __FILE__)
   require File.expand_path('../lib/arbiter', __FILE__)
-  require File.expand_path('../lib/positioner', __FILE__)
   require File.expand_path('../lib/commander', __FILE__)
 
   arbiter = DTK::Agent::Arbiter.new(@request_params)
