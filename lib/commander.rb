@@ -105,6 +105,14 @@ module DTK
 
     private
 
+      def self.clear_environment_variables(env_vars_hash)
+        return unless env_vars_hash
+        env_vars_hash.keys.each do |k|
+          ENV.delete(k)
+          Log.debug("Environment variable cleared (#{k})")
+        end
+      end
+
       ##
       # Sets environmental variables
       def self.set_environment_variables(env_vars_hash)

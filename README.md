@@ -21,9 +21,9 @@ As any gem we need to run:
 Example of instruction hash:
 
 	example = {
-		:env_vars => { :test_env => 'works', :test_env_second => 10 },
     	:execution_list => [
         {
+          :env_vars => { :test_env => 'works', :test_env_second => 10 },
         	:type            => 'syscall',
         	:command         => "date",
         	:if              => 'echo works!',

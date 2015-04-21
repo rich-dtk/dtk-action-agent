@@ -16,6 +16,8 @@ module DTK
         @branch  = source_info['ref'] || 'master'
         @content = source_info['content']
 
+        @env_vars = command_hash['env_vars']
+
         @target_path = target_info['path']
 
         @exited     = false
@@ -28,6 +30,8 @@ module DTK
         @started = true
         prepare_path()
 
+        Commander.set_environment_variables(@env_vars)
+
         begin
           case @type
           when :git
@@ -38,7 +42,10 @@ module DTK
         rescue Exception => e
           cleanup_path()
           raise e
+        ensure
+          Commander.clear_environment_variables(@env_vars)
         end
+
       end
 
       def exited?

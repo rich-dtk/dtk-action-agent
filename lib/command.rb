@@ -28,6 +28,8 @@ module DTK
         @spawned         = false
         @child_task      = value_hash['child_task'] || false
 
+        @env_vars        = value_hash['env_vars']
+
         if @if_success && @if_fail
           Log.warn "Unexpected case, both if/unless conditions have been set for command #{@command}(#{@command_type})"
         end
@@ -38,10 +40,13 @@ module DTK
       #
       def start_task
         begin
+          Commander.set_environment_variables(@env_vars)
           @process = POSIX::Spawn::Child.new(formulate_command)
           Log.debug("Command started: '#{self.to_s}'")
         rescue Exception => e
           @error_message = e.message
+        ensure
+          Commander.clear_environment_variables(@env_vars)
         end
       end
 

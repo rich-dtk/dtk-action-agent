@@ -43,16 +43,17 @@ require 'cgi'
   })
 
 @request_params = ActiveSupport::HashWithIndifferentAccess.new({
-  :env_vars => { :test_env => 'works', :test_env_second => 10 },
   :execution_list => [
     {
+        :env_vars => { :test_env2 => 'works32', :test_env_second2 => 10 },
         :type            => 'syscall',
-        :command         => "date",
+        :command         => "echo $test_env2",
         :if              => 'echo works!',
         :stdout_redirect => true
     },
     {
         :type => 'file',
+        :env_vars => { :test_env => 'works', :test_env_second => 10 },
         :source => {
            :type => 'git',
            :url => "git@github.com:rich-reactor8/dtk-client.git",

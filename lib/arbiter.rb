@@ -18,8 +18,6 @@ module DTK
           return
         end
 
-        # sets enviorment variables
-        Commander.set_environment_variables(@received_message['env_vars'])
         @commander = Commander.new(@received_message['execution_list'])
       end
 
