@@ -27,12 +27,14 @@ Example of instruction hash:
         	:type            => 'syscall',
         	:command         => "date",
         	:if              => 'echo works!',
-        	:stdout_redirect => true
+        	:stdout_redirect => true,
+          :timeout         => 0
       	},
       	{
         	:type    => 'syscall',
         	:command => '1date',
-        	:unless      => 'echo "Does not work!"'
+        	:unless      => 'echo "Does not work!"',
+          :timeout => 10
         },
         {
         	:type => 'file',

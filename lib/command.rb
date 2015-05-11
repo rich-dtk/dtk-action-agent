@@ -27,6 +27,7 @@ module DTK
         @if_fail         = value_hash['unless']
         @spawned         = false
         @child_task      = value_hash['child_task'] || false
+        @timeout         = (value_hash['timeout'] || 0).to_i
 
         @env_vars        = value_hash['env_vars']
 
@@ -39,10 +40,13 @@ module DTK
       # Creates Posix Spawn of given process
       #
       def start_task
+
         begin
           Commander.set_environment_variables(@env_vars)
-          @process = POSIX::Spawn::Child.new(formulate_command)
+          @process = POSIX::Spawn::Child.new(formulate_command, :timeout => @timeout)
           Log.debug("Command started: '#{self.to_s}'")
+        rescue POSIX::Spawn::TimeoutExceeded => e
+          @error_message = "Timeout (#{@timeout} sec) for this action has been exceeded"
         rescue Exception => e
           @error_message = e.message
         ensure
@@ -96,6 +100,7 @@ module DTK
       end
 
       def started?
+        return true if @error_message
         !!self.process
       end
 
