@@ -5,7 +5,7 @@ require 'active_support/core_ext/hash'
 require 'cgi'
 
 
-@request_params = ActiveSupport::HashWithIndifferentAccess.new({
+@request_params2 = ActiveSupport::HashWithIndifferentAccess.new({
   :execution_list => [
     {
         :env_vars => { :test_env2 => 'works32', :test_env_second2 => 10 },
@@ -41,6 +41,41 @@ require 'cgi'
         :unless      => 'echo "Does not work!"'
    }]
 
+})
+
+@request_params = ActiveSupport::HashWithIndifferentAccess.new({
+ :execution_list => [
+         {
+                        :type => "syscall",
+                     :command => "ls /tmp",
+             :stdout_redirect => true
+         },
+         {
+                        :type => "syscall",
+                     :command => "ls /usr",
+             :stdout_redirect => true
+         },
+         {
+               :type => "file",
+             :source => {
+                    :type => "in_payload",
+                 :content => "Hello WORLD!"
+             },
+             :target => {
+                 :path => "/tmp/works.pp"
+             }
+         },
+         {
+               :type => "file",
+             :source => {
+                    :type => "in_payload",
+                 :content => "Hello WORLD!"
+             },
+             :target => {
+                 :path => "/tmp/baba.pp"
+             }
+         }
+     ]
 })
 
 def test_command_line

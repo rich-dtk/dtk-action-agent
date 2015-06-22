@@ -92,7 +92,7 @@ module DTK
         @exited = true
       end
 
-      def position_in_payload(position_info)
+      def position_in_payload()
         # write to file
         File.open(@target_path, 'w') { |file| file.write(@content) }
         Log.info("Positioner successfully created 'IN_PAYLOAD' file '#{@target_path}'")
