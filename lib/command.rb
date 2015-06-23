@@ -6,7 +6,7 @@ module DTK
 
     class Command
 
-      attr_accessor :command_type, :command, :if_success, :if_fail, :process, :child_task
+      attr_accessor :command_type, :command, :if_success, :if_fail, :process, :child_task, :backtrace
 
       ##
       # command         - string to be run on system, e.g. ifconfig
@@ -49,6 +49,7 @@ module DTK
           @error_message = "Timeout (#{@timeout} sec) for this action has been exceeded"
         rescue Exception => e
           @error_message = e.message
+          @backtrace = e.backtrace
         ensure
           Commander.clear_environment_variables(@env_vars)
         end
