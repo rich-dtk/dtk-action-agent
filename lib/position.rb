@@ -6,7 +6,7 @@ module DTK
   module Agent
     class Position
 
-      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task
+      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace
 
       def initialize(command_hash)
         source_info, target_info = command_hash['source'], command_hash['target']
