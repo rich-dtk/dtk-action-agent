@@ -34,7 +34,7 @@ module DTK
       def self.warn(msg, backtrace = nil)
         # self.instance.logger.warn(msg)
         ap "warn: #{msg}" if LOG_TO_CONSOLE
-        self.instance.error_msgs <<  :message => msg, :backtrace => backtrace }
+        self.instance.error_msgs <<  { :message => msg, :backtrace => backtrace }
       end
 
       def self.error(msg, backtrace = nil)
