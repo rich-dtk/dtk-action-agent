@@ -83,7 +83,7 @@ module DTK
             cleanup_path()
             @exitstatus = 1
             Log.error("Positioner unable to clone #{@git_url}")
-            Log.error(e.message)
+            Log.error(e.message, e.backtrace)
           end
         else
           Log.warn("Positioner detected folder '#{@target_path}' skipping git clone")

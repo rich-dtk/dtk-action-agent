@@ -50,6 +50,7 @@ module DTK
         rescue Exception => e
           @error_message = e.message
           @backtrace = e.backtrace
+          Log.error(@error_message, @backtrace)
         ensure
           Commander.clear_environment_variables(@env_vars)
         end

@@ -31,16 +31,16 @@ module DTK
         ap "info: #{msg}" if LOG_TO_CONSOLE
       end
 
-      def self.warn(msg)
+      def self.warn(msg, backtrace = nil)
         # self.instance.logger.warn(msg)
         ap "warn: #{msg}" if LOG_TO_CONSOLE
-        self.instance.error_msgs << msg
+        self.instance.error_msgs <<  :message => msg, :backtrace => backtrace }
       end
 
-      def self.error(msg)
+      def self.error(msg, backtrace = nil)
         # self.instance.logger.error(msg)
         ap "error: #{msg}" if LOG_TO_CONSOLE
-        self.instance.error_msgs << msg
+        self.instance.error_msgs << { :message => msg, :backtrace => backtrace }
       end
 
     end
