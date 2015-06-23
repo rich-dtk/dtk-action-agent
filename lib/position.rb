@@ -82,7 +82,7 @@ module DTK
           rescue Exception => e
             cleanup_path()
             @exitstatus = 1
-            Log.error("Positioner unable to clone #{@git_url}")
+            Log.error("Positioner unable to clone provided url #{@git_url}")
             Log.error(e.message, e.backtrace)
           end
         else
