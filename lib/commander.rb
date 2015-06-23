@@ -96,7 +96,7 @@ module DTK
             :stdout      => command_task.out,
             :stderr      => command_task.err,
             :description => command_task.to_s,
-            :child_task  => command_task.child_task
+            :child_task  => command_task.child_task,
             :backtrace   => command_task.backtrace
           }
         end
