@@ -6,7 +6,7 @@ module DTK
   module Agent
     class Position
 
-      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace
+      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace, :owner, :executable
 
       def initialize(command_hash)
         source_info, target_info = command_hash['source'], command_hash['target']
@@ -15,6 +15,9 @@ module DTK
         @git_url = source_info['url']
         @branch  = source_info['ref'] || 'master'
         @content = source_info['content']
+
+        @owner       = command_hash['owner']
+        @executable  = command_hash['executable']
 
         @env_vars = command_hash['env_vars']
 
@@ -94,7 +97,21 @@ module DTK
 
       def position_in_payload()
         # write to file
-        File.open(@target_path, 'w') { |file| file.write(@content) }
+        file = File.open(@target_path, 'w')
+        file.write(@content)
+
+        if @owner
+          begin
+            FileUtils.chown(@owner, nil, file.path)
+          rescue Exception => e
+            Log.warn("Not able to set owner '#{@owner}', reason: " + e.message)
+          end
+        end
+
+        if @executable
+          FileUtils.chmod('o+x', file.path)
+        end
+
         Log.info("Positioner successfully created 'IN_PAYLOAD' file '#{@target_path}'")
         @exited = true
       end
