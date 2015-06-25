@@ -109,7 +109,11 @@ module DTK
         end
 
         if @mode
-          FileUtils.chmod(@mode, file.path)
+          begin
+            FileUtils.chmod(@mode, file.path)
+          rescue Exception => e
+            Log.warn("Not able to set chmod permissions '#{@mode}', reason: " + e.message)
+          end
         end
 
         Log.info("Positioner successfully created 'IN_PAYLOAD' file '#{@target_path}'")
