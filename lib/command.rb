@@ -93,12 +93,12 @@ module DTK
 
       def out
         return '' if @error_message
-        self.process.out
+        self.process.out.encode!('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
       end
 
       def err
         return @error_message if @error_message
-        self.process.err
+        self.process.err.encode!('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
       end
 
       def started?
