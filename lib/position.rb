@@ -17,7 +17,7 @@ module DTK
         @content = source_info['content']
 
         @owner  = command_hash['owner']
-        @mode   = command_hash['mode'].oct if command_hash['mode']
+        @mode   = command_hash['mode'].to_s.oct if command_hash['mode']
 
         @env_vars = command_hash['env_vars']
 
