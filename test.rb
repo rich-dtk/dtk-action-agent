@@ -8,16 +8,11 @@ require 'cgi'
 @request_params = ActiveSupport::HashWithIndifferentAccess.new({
   :execution_list => [
     {
-        :type =>  'file',
-        :owner => 'Guest',
-        :executable => true,
-        :source => {
-            :type => 'in_payload',
-            :content => "Hello WORLD!"
-        },
-        :target => {
-            :path => "/Users/haris/test.pp"
-        }
+
+        :type    => 'syscall',
+        :command => 'rm -rf /Users/haris/test',
+        :if      => 'ls /Users/haris/test',
+        :timeout => 10
     }
   ]
 

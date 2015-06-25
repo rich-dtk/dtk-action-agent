@@ -6,7 +6,7 @@ module DTK
   module Agent
     class Position
 
-      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace, :owner, :mode
+      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :backtrace, :owner, :mode
 
       def initialize(command_hash)
         source_info, target_info = command_hash['source'], command_hash['target']
@@ -26,7 +26,6 @@ module DTK
         @exited     = false
         @started    = false
         @exitstatus = 0
-        @child_task = false
       end
 
       def start_task()
@@ -60,10 +59,6 @@ module DTK
       #
       def started?
         @started
-      end
-
-      def spawn_callback_task
-        raise "Callback task is not supported for positioner"
       end
 
       def callback_pending?

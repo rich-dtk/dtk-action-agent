@@ -6,7 +6,7 @@ module DTK
 
     class Command
 
-      attr_accessor :command_type, :command, :if_success, :if_fail, :process, :child_task, :backtrace
+      attr_accessor :command_type, :command, :process, :backtrace
 
       ##
       # command         - string to be run on system, e.g. ifconfig
@@ -14,7 +14,6 @@ module DTK
       # if              - callback to be run if exit status is  = 0
       # unless          - callback to be run if exit status is != 0
       # stdout_redirect - redirect all output to stdout
-      # child_task      - if it is spawned by another main task
       #
 
       STDOUT_REDIRECT = ' 2>&1'
@@ -23,15 +22,15 @@ module DTK
         @command_type    = value_hash['type']
         @command         = value_hash['command']
         @stdout_redirect = !!value_hash['stdout_redirect']
-        @if_success      = value_hash['if']
-        @if_fail         = value_hash['unless']
-        @spawned         = false
-        @child_task      = value_hash['child_task'] || false
+
+        @if              = value_hash['if']
+        @unless          = value_hash['unless']
+
         @timeout         = (value_hash['timeout'] || 0).to_i
 
         @env_vars        = value_hash['env_vars']
 
-        if @if_success && @if_fail
+        if @if && @unless
           Log.warn "Unexpected case, both if/unless conditions have been set for command #{@command}(#{@command_type})"
         end
       end
@@ -40,7 +39,6 @@ module DTK
       # Creates Posix Spawn of given process
       #
       def start_task
-
         begin
           Commander.set_environment_variables(@env_vars)
           @process = POSIX::Spawn::Child.new(formulate_command, :timeout => @timeout)
@@ -60,25 +58,34 @@ module DTK
       # Checks if there is callaback present, callback beeing if/unless command
       #
       def callback_pending?
-        return false if @spawned
-        command_to_run = (self.exitstatus.to_i == 0) ? @if_success : @if_fail
-        !!command_to_run
+        @if || @unless
       end
 
       def is_positioning?
         'file'.eql?(@command_type)
       end
 
-
       ##
-      # Creates Command object for callback, first check 'if' than 'unless'. There should be no both set so priority is given
-      # to 'if' callback in case there are two
+      # Returns true/false based on condition data and result of process
       #
-      def spawn_callback_task
-        callback_command = (self.exitstatus.to_i == 0) ? @if_success : @if_fail
-        new_command = Command.new('type' => @command_type, 'command' => callback_command, 'child_task' => true)
-        @spawned = true
-        new_command
+      def run_condition_task
+        condition_command   = @if
+        condition_command ||= @unless
+
+        begin
+          condition_process = POSIX::Spawn::Child.new(condition_command, :timeout => @timeout)
+        rescue Exception => e
+          Log.warn("Condition command '#{condition_command}' ran into an exception, message: #{e.message}")
+          # return true if unless condition was used
+          return @unless ? true : false
+        end
+
+        while (!condition_process.status.exited?) do
+          sleep(1)
+        end
+
+        return condition_process.status.exitstatus > 0 ? false : true if @if
+        return condition_process.status.exitstatus > 0 ? true  : false if @unless
       end
 
       def exited?
@@ -98,7 +105,7 @@ module DTK
 
       def err
         return @error_message if @error_message
-        self.process.err.encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
+        self.process.err.encode!('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
       end
 
       def started?
