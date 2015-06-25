@@ -6,7 +6,7 @@ module DTK
   module Agent
     class Position
 
-      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace, :owner, :executable
+      attr_accessor :position_file_info, :exitstatus, :started, :out, :err, :child_task, :backtrace, :owner, :mode
 
       def initialize(command_hash)
         source_info, target_info = command_hash['source'], command_hash['target']
@@ -16,8 +16,8 @@ module DTK
         @branch  = source_info['ref'] || 'master'
         @content = source_info['content']
 
-        @owner       = command_hash['owner']
-        @executable  = command_hash['executable']
+        @owner  = command_hash['owner']
+        @mode   = command_hash['mode'].to_i if command_hash['mode']
 
         @env_vars = command_hash['env_vars']
 
@@ -108,8 +108,8 @@ module DTK
           end
         end
 
-        if @executable
-          FileUtils.chmod('o+x', file.path)
+        if @mode
+          FileUtils.chmod(@mode, file.path)
         end
 
         Log.info("Positioner successfully created 'IN_PAYLOAD' file '#{@target_path}'")
