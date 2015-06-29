@@ -1,6 +1,8 @@
 require 'thread'
 require 'git'
 require 'fileutils'
+require File.expand_path('../utils/permission', __FILE__)
+
 
 module DTK
   module Agent
@@ -17,7 +19,14 @@ module DTK
         @content = source_info['content']
 
         @owner  = command_hash['owner']
-        @mode   = command_hash['mode'].to_s.oct if command_hash['mode']
+
+        if command_hash['mode']
+          if DTK::Utils::Permission.check(command_hash['mode'])
+            @mode   = command_hash['mode'].to_s.oct
+          else
+            trigger_error("Permissions '#{command_hash['mode']}' are not valid, aborting operation")
+          end
+        end
 
         @env_vars = command_hash['env_vars']
 
@@ -29,6 +38,7 @@ module DTK
       end
 
       def start_task()
+        return if (@exitstatus > 0)
         @started = true
         prepare_path()
 
@@ -43,7 +53,7 @@ module DTK
           end
         rescue Exception => e
           cleanup_path()
-          raise e
+          trigger_error(e.message)
         ensure
           Commander.clear_environment_variables(@env_vars)
         end
@@ -72,6 +82,12 @@ module DTK
 
     private
 
+      def trigger_error(error_message, err_status = 1, error_backtrace = nil)
+        @err = error_message
+        Log.error(error_message)
+        @exitstatus = err_status
+      end
+
       def position_git()
         unless File.directory?(@target_path)
           begin
@@ -79,9 +95,7 @@ module DTK
             Log.info("Positioner successfully cloned git repository '#{@git_url}@#{@branch}' to location '#{@target_path}'")
           rescue Exception => e
             cleanup_path()
-            @exitstatus = 1
-            Log.error("Positioner unable to clone provided url #{@git_url}")
-            Log.error(e.message, e.backtrace)
+            trigger_error("Positioner unable to clone provided url #{@git_url}. Reasone: #{e.message}", 1, e.backtrace)
           end
         else
           Log.warn("Positioner detected folder '#{@target_path}' skipping git clone")
@@ -112,6 +126,7 @@ module DTK
         end
 
         Log.info("Positioner successfully created 'IN_PAYLOAD' file '#{@target_path}'")
+        file.close
         @exited = true
       end
 
