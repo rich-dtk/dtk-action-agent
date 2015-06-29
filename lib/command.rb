@@ -99,9 +99,6 @@ module DTK
       end
 
       def out
-        require 'ap'
-        ap "Writing out:"
-        ap @process.status.exited?
         return '' if @error_message
         self.process.out.encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
       end
