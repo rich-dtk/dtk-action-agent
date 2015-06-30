@@ -56,7 +56,7 @@ module DTK
           end
         rescue Exception => e
           cleanup_path()
-          trigger_error(e.message)
+          trigger_error(e.message, 1, e.backtrace)
         ensure
           Commander.clear_environment_variables(@env_vars)
         end
@@ -87,7 +87,7 @@ module DTK
 
       def trigger_error(error_message, err_status = 1, error_backtrace = nil)
         @err = error_message
-        Log.error(error_message)
+        Log.error(error_message, error_backtrace)
         @exitstatus = err_status
         @started = true
         @exited  = true
