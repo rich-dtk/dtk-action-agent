@@ -13,6 +13,10 @@ module DTK
       def initialize(command_hash)
         source_info, target_info = command_hash['source'], command_hash['target']
 
+        @exited     = false
+        @started    = false
+        @exitstatus = 0
+
         @type    = source_info['type'].to_sym
         @git_url = source_info['url']
         @branch  = source_info['ref'] || 'master'
@@ -31,15 +35,14 @@ module DTK
         @env_vars = command_hash['env_vars']
 
         @target_path = target_info['path']
-
-        @exited     = false
-        @started    = false
-        @exitstatus = 0
       end
 
       def start_task()
-        return if (@exitstatus > 0)
         @started = true
+
+        # for cases when there was an error
+        return if @exited
+
         prepare_path()
 
         Commander.set_environment_variables(@env_vars)
@@ -86,6 +89,8 @@ module DTK
         @err = error_message
         Log.error(error_message)
         @exitstatus = err_status
+        @started = true
+        @exited  = true
       end
 
       def position_git()

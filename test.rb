@@ -12,7 +12,7 @@ require 'cgi'
         :mode => '777',
         :source => {
             :type => 'in_payload',
-            :content => "Hello WORLD!"
+            :content => "Hello WORLD!\nnesto2"
         },
         :target => {
             :path => "/Users/haris/test.pp"
@@ -20,7 +20,7 @@ require 'cgi'
     },
     {
         :type    => 'syscall',
-        :command => "more /Users/haris/test.pp",
+        :command => "cat /Users/haris/test.pp | grep Hello",
         :timeout => 10
     },
   ]
