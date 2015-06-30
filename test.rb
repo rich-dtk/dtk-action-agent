@@ -21,7 +21,8 @@ require 'cgi'
     {
         :type    => 'syscall',
         :command => "cat /Users/haris/test.pp | grep Hello",
-        :timeout => 10
+        :timeout => 10,
+        :stdout_redirect => true
     },
   ]
 })
