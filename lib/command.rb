@@ -123,7 +123,7 @@ module DTK
       # Based on stdout-redirect flag
       #
       def formulate_command
-        @stdout_redirect ? "#{@command} #{STDOUT_REDIRECT}" : @command
+        @command
       end
 
     end
