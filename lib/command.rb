@@ -79,6 +79,9 @@ module DTK
         condition_command   = @if
         condition_command ||= @unless
 
+        # this is needed since Timeout block will not allow initialization of new variables
+        condition_process_status = nil
+
         begin
           Timeout.timeout(@timeout) do
             _out, _err, condition_process_status = Open3.capture3(condition_command)
