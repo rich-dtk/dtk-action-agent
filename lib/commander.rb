@@ -35,7 +35,6 @@ module DTK
           end
 
           command_task.start_task
-
           loop do
             if command_task.exited?
               Log.debug("Command '#{command_task}' finished, with status #{command_task.exitstatus}")

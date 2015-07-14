@@ -1,3 +1,6 @@
+require 'open3'
+require 'timeout'
+
 module DTK
   module Agent
 
@@ -41,9 +44,13 @@ module DTK
       def start_task
         begin
           Commander.set_environment_variables(@env_vars)
-          @process = POSIX::Spawn::Child.new(formulate_command, :timeout => @timeout)
-          Log.debug("Command started: '#{self.to_s}'")
-        rescue POSIX::Spawn::TimeoutExceeded => e
+
+          Timeout.timeout(@timeout) do
+            Log.debug("Command started: '#{self.to_s}'")
+            @out, @err, @process_status = Open3.capture3(formulate_command)
+          end
+
+        rescue Timeout::Error
           @error_message = "Timeout (#{@timeout} sec) for this action has been exceeded"
         rescue Exception => e
           @error_message = e.message
@@ -73,44 +80,43 @@ module DTK
         condition_command ||= @unless
 
         begin
-          condition_process = POSIX::Spawn::Child.new(condition_command, :timeout => @timeout)
+          Timeout.timeout(@timeout) do
+            _out, _err, condition_process_status = Open3.capture3(condition_command)
+          end
         rescue Exception => e
-          Log.warn("Condition command '#{condition_command}' ran into an exception, message: #{e.message}")
+          # do not log error in cases it was expected. Meaning that 'unless' condition was set.
+          Log.warn("Condition command '#{condition_command}' ran into an exception, message: #{e.message}") unless @unless
           # return true if unless condition was used
           return @unless ? true : false
         end
 
-        while (!condition_process.status.exited?) do
-          sleep(1)
-        end
-
-        return condition_process.status.exitstatus > 0 ? false : true if @if
-        return condition_process.status.exitstatus > 0 ? true  : false if @unless
+        return condition_process_status.exitstatus > 0 ? false : true if @if
+        return condition_process_status.exitstatus > 0 ? true  : false if @unless
       end
 
       def exited?
         return true if @error_message
-        self.process.status.exited?
-      end
-
-      def exitstatus
-        return 1 if @error_message
-        self.process.status.exitstatus
-      end
-
-      def out
-        return '' if @error_message
-        self.process.out.encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
-      end
-
-      def err
-        return @error_message if @error_message
-        self.process.err.encode!('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
+        @process_status.exited?
       end
 
       def started?
         return true if @error_message
-        !!self.process
+        !!@process_status
+      end
+
+      def exitstatus
+        return 1 if @error_message
+        @process_status.exitstatus
+      end
+
+      def out
+        return '' if @error_message
+        @out.encode('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
+      end
+
+      def err
+        return @error_message if @error_message
+        @err.encode!('UTF-8', :invalid => :replace, :undef => :replace, :replace => '')
       end
 
       def to_s

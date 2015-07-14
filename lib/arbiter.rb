@@ -1,5 +1,4 @@
 require 'ap'
-require 'posix-spawn'
 
 module DTK
   module Agent
