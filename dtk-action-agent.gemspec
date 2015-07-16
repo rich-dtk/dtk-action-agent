@@ -21,4 +21,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'awesome_print', '1.1.0'
   gem.add_dependency 'json', '1.8.2'
   gem.add_dependency 'git', '1.2.9.1'
+  gem.add_dependency 'after_do', '0.3.1'
 end
