@@ -96,10 +96,12 @@ module DTK
       def position_git()
         unless File.directory?(@target_path)
           begin
+            tries ||= 2
             g_repo = Git.clone("#{@git_url}", '', :path => @target_path, :branch => @branch)
             Log.info("Positioner successfully cloned git repository '#{@git_url}@#{@branch}' to location '#{@target_path}'")
           rescue Exception => e
             cleanup_path()
+            retry unless (tries -= 1).zero?
             trigger_error("Positioner unable to clone provided url #{@git_url}. Reasone: #{e.message}", 1, e.backtrace)
           end
         else

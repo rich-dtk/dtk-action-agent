@@ -4,6 +4,9 @@ require 'active_support/hash_with_indifferent_access'
 require 'active_support/core_ext/hash'
 require 'cgi'
 
+# set local directory to path
+# export PATH=$PATH:"$(pwd)/bin"
+
 
 @request_params = ActiveSupport::HashWithIndifferentAccess.new({
   :module_name => 'r8::stdlib',
@@ -11,23 +14,34 @@ require 'cgi'
   :top_task_id => 100000001,
   :task_id     => 100000002,
   :execution_list => [
+    # {
+    #     :type =>  'file',
+    #     :mode => '777',
+    #     :source => {
+    #         :type => 'in_payload',
+    #         :content => "Hello WORLD!\nnesto2"
+    #     },
+    #     :target => {
+    #         :path => "/Users/haris/test.pp"
+    #     }
+    # },
+    # {
+    #     :type    => 'syscall',
+    #     :command => "cat /Users/haris/test.pp | grep Hello",
+    #     :timeout => 3,
+    #     :stdout_redirect => true
+    # },
     {
-        :type =>  'file',
-        :mode => '777',
-        :source => {
-            :type => 'in_payload',
-            :content => "Hello WORLD!\nnesto2"
+      :type => 'file',
+      :source => {
+          :type => 'git',
+          :url => "git@github.com:rich-reactor8/dtk-cl3ient.git",
+          :ref => "tenant1"
         },
-        :target => {
-            :path => "/Users/haris/test.pp"
-        }
-    },
-    {
-        :type    => 'syscall',
-        :command => "cat /Users/haris/test.pp | grep Hello",
-        :timeout => 3,
-        :stdout_redirect => true
-    },
+      :target => {
+          :path => "/Users/haris/foo-test"
+        },
+     }
   ]
 })
 
