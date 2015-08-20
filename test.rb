@@ -25,23 +25,23 @@ require 'cgi'
     #         :path => "/Users/haris/test.pp"
     #     }
     # },
-    # {
-    #     :type    => 'syscall',
-    #     :command => "cat /Users/haris/test.pp | grep Hello",
-    #     :timeout => 3,
-    #     :stdout_redirect => true
-    # },
     {
-      :type => 'file',
-      :source => {
-          :type => 'git',
-          :url => "git@github.com:rich-reactor8/dtk-cl3ient.git",
-          :ref => "tenant1"
-        },
-      :target => {
-          :path => "/Users/haris/foo-test"
-        },
-     }
+        :type    => 'syscall',
+        :command => "sleep 20",
+        :timeout => 3,
+        :stdout_redirect => true
+    },
+    # {
+    #   :type => 'file',
+    #   :source => {
+    #       :type => 'git',
+    #       :url => "git@github.com:rich-reactor8/dtk-cl3ient.git",
+    #       :ref => "tenant1"
+    #     },
+    #   :target => {
+    #       :path => "/Users/haris/foo-test"
+    #     },
+    #  }
   ]
 })
 
@@ -66,7 +66,7 @@ def test_inline
   ap results
 end
 
-test_command_line
+test_inline
 
 
 

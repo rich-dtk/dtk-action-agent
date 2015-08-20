@@ -45,13 +45,15 @@ module DTK
         begin
           Commander.set_environment_variables(@env_vars)
 
-          Timeout.timeout(@timeout) do
-            Log.debug("Command started: '#{self.to_s}'")
-            @out, @err, @process_status = Open3.capture3(formulate_command)
-          end
 
-        rescue Timeout::Error
-          @error_message = "Timeout (#{@timeout} sec) for this action has been exceeded"
+          results = capture3_with_timeout(formulate_command)
+
+          @out = results[:stdout]
+          @err = results[:stderr]
+          @process_status = results[:status]
+
+          @error_message = "Timeout (#{@timeout} sec) for this action has been exceeded" if results[:timeout]
+
         rescue Exception => e
           @error_message = e.message
           @backtrace = e.backtrace
@@ -127,6 +129,75 @@ module DTK
       end
 
     private
+
+      ##
+      # Open3 method extended with timeout, more info https://gist.github.com/pasela/9392115
+      #
+
+      def capture3_with_timeout(*cmd)
+        spawn_opts = Hash === cmd.last ? cmd.pop.dup : {}
+        opts = {
+          :stdin_data => "",
+          :timeout    => @timeout,
+          :signal     => :TERM,
+          :kill_after => nil,
+        }
+
+        in_r,  in_w  = IO.pipe
+        out_r, out_w = IO.pipe
+        err_r, err_w = IO.pipe
+        in_w.sync = true
+
+        spawn_opts[:in]  = in_r
+        spawn_opts[:out] = out_w
+        spawn_opts[:err] = err_w
+
+        result = {
+          :pid     => nil,
+          :status  => nil,
+          :stdout  => nil,
+          :stderr  => nil,
+          :timeout => false,
+        }
+
+        out_reader = nil
+        err_reader = nil
+        wait_thr = nil
+
+        begin
+          Timeout.timeout(opts[:timeout]) do
+            result[:pid] = spawn(*cmd, spawn_opts)
+            wait_thr = Process.detach(result[:pid])
+            in_r.close
+            out_w.close
+            err_w.close
+
+            out_reader = Thread.new { out_r.read }
+            err_reader = Thread.new { err_r.read }
+
+            in_w.close
+
+            result[:status] = wait_thr.value
+          end
+        rescue Timeout::Error
+          result[:timeout] = true
+          pid = result[:pid]
+          Process.kill(opts[:signal], pid)
+          if opts[:kill_after]
+            unless wait_thr.join(opts[:kill_after])
+              Process.kill(:KILL, pid)
+            end
+          end
+        ensure
+          result[:status] = wait_thr.value if wait_thr
+          result[:stdout] = out_reader.value if out_reader
+          result[:stderr] = err_reader.value if err_reader
+          out_r.close unless out_r.closed?
+          err_r.close unless err_r.closed?
+        end
+
+        result
+      end
 
       #
       # Based on stdout-redirect flag
