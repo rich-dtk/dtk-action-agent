@@ -9,7 +9,7 @@ module DTK
     ##
     # This is container for command as received from Node Agent
     #
-    # TEST_AGENT Branch message
+    # TEST_AGENT Branch message - Bakir's "Hello World"
 
     class Command
 
