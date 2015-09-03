@@ -27,8 +27,8 @@ require 'cgi'
     # },
     {
         :type    => 'syscall',
-        :command => "sleep 20",
-        :timeout => 3,
+        :command => "sleep 10; echo jao;",
+        :timeout => 0,
         :stdout_redirect => true
     },
     # {

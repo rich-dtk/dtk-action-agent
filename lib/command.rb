@@ -23,6 +23,7 @@ module DTK
       #
 
       STDOUT_REDIRECT = ' 2>&1'
+      STREAM_TIMEOUT  = 5
 
       def initialize(value_hash)
         @command_type    = value_hash['type']
@@ -193,8 +194,16 @@ module DTK
           end
         ensure
           result[:status] = wait_thr.value if wait_thr
-          result[:stdout] = out_reader.value if out_reader
-          result[:stderr] = err_reader.value if err_reader
+          begin
+            # there is a bug where there is infinite leg on out_reader (e.g. hohup) commands
+            Timeout.timeout(STREAM_TIMEOUT) do
+              result[:stdout] = out_reader.value if out_reader
+              result[:stderr] = err_reader.value if err_reader
+            end
+          rescue Timeout::Error
+            result[:stdout] ||= ''
+            result[:stderr] ||= ''
+          end
           out_r.close unless out_r.closed?
           err_r.close unless err_r.closed?
         end
